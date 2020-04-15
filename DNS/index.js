@@ -2,8 +2,9 @@ const AWS = require('aws-sdk');
 const Route53 = new AWS.Route53();
 const DB = new AWS.DynamoDB();
 
-const HOSTEDZONEID = "Z3PPKLB0ZXZ4HB";
+const HOSTEDZONEID = "...";
 const DBNAME = "MinkeDNS";
+const DBHUMAN = "MinkeHuman";
 const DBUIPINDEX = "UpdatingIp-index";
 const LIMIT = 50;
 
@@ -12,9 +13,9 @@ const IPADDR = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[0
 const IPADDR6 = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
 
 exports.handler = async (event, context) => {
-  
+
   console.log(event.key, event.host, event.ip, event.ip6);
-  
+
   const client = event.key;
   const host = event.host;
   const ip = event.ip;
@@ -33,6 +34,24 @@ exports.handler = async (event, context) => {
   if (!GUID.test(client)) {
     return 'fail';
   }
+
+  await new Promise((resolve, reject) => {
+    DB.getItem({
+      TableName: DBHUMAN,
+      Key: {
+        Client: { S: client }
+      }
+    }, (err, data) => {
+      if (err) {
+        return reject(err);
+      }
+      const human = data && data.Item && data.Item.Human && data.Item.Human.S;
+      if (!human) {
+        return reject('not human');
+      }
+      resolve();
+    });
+  });
 
   const name = `${host}.minkebox.net.`;
 
@@ -81,11 +100,11 @@ exports.handler = async (event, context) => {
         HostedZoneId: HOSTEDZONEID,
         ChangeBatch: {
           Changes: [{
-            Action: "UPSERT", 
+            Action: "UPSERT",
             ResourceRecordSet: {
-              Name: name, 
+              Name: name,
               ResourceRecords: [ { Value: ip } ],
-              TTL: 600, 
+              TTL: 600,
               Type: "A"
             }
           }]
@@ -93,11 +112,11 @@ exports.handler = async (event, context) => {
       };
       if (ip6) {
         args.ChangeBatch.Changes.push({
-          Action: "UPSERT", 
+          Action: "UPSERT",
           ResourceRecordSet: {
-            Name: name, 
+            Name: name,
             ResourceRecords: [ { Value: ip6 } ],
-            TTL: 600, 
+            TTL: 600,
             Type: "AAAA"
           }
         });
@@ -122,7 +141,7 @@ exports.handler = async (event, context) => {
                 HostedZoneId: HOSTEDZONEID,
                 ChangeBatch: {
                   Changes: [{
-                    Action: "DELETE", 
+                    Action: "DELETE",
                     ResourceRecordSet: record
                   }]
                 }
