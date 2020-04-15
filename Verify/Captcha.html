@@ -1,0 +1,95 @@
+<html>
+  <head>
+    <style>
+      .popbox_container .content-header {
+        text-transform: uppercase;
+        color: #aaa;
+        border-bottom: 1px solid #eee;
+        padding: 0.4em 0;
+        font-size: 80%;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        margin: 20px 0;
+      }
+      .popbox_container .content-text {
+        color: #777;
+        line-height: 1.4em;
+        padding-bottom: 1em;
+      }
+      .popbox .popbox_container {
+        max-width: 600px;
+        padding: 40px;
+      }
+      .popbox .button-cancel {
+        font-family: inherit;
+        font-size: 100%;
+        background: rgb(202, 60, 60); /* this is a maroon */
+        color: white;
+        border-radius: 4px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        padding: .5em 1em;
+        margin-top: 40px;
+        float: right;
+      }
+      .popbox .spacer {
+        padding-top: 20px;
+      }
+      .popbox{
+        font-family: sans-serif;
+        position: fixed;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        will-change: opacity;
+        transition:opacity 0.3s ease;
+        opacity:1;
+        will-change: opacity;
+        background: rgba(60, 52, 66, 0.7);
+        padding:18px;
+        padding-top:5%;
+        overflow-y: auto;
+      }
+      .popbox_container{
+        border-radius:5px;
+        margin-bottom:18px;
+        padding: 18px;
+        margin-left:auto;
+        margin-right:auto;
+        background:#fff;
+        max-width:400px;
+      }
+    </style>
+    <script>
+      function showCaptcha() {
+        grecaptcha.render('captcha', {
+          sitekey: '...',
+          callback: (token) => {
+            setTimeout(() => {
+              parent.postMessage(JSON.stringify({ type: 'system.captcha.token', value: token }), '*');
+            }, 1000);
+          }
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="popbox">
+      <div class="popbox_container">
+        <div class="content-header">Human Verification</div>
+        <div class="content-text">
+          Hello. If you are seeing this then either you pushed the button to verify that you're human or it's the first time
+          MinkeBox has tried to registered an application with the MinkeBox DDNS service.
+          This service is completely free and allows MinkeBox to programmatically generate public fully qualified
+          domain names for your applications so they can be accessed from the Internet.
+          Before you can use this service, and to prevent abusive behaviour by bots, we need to verify that you're a human.
+          This should only happens once. If you choose not to verify now, you can explicitly do it later.
+        </div>
+        <button class="pure-button button-cancel" onclick="parent.postMessage(JSON.stringify({ type: 'system.captcha.token', value: 'cancel' }), '*');">Cancel</button>
+        <div id="captcha"></div>
+        <script src="https://www.google.com/recaptcha/api.js?onload=showCaptcha&render=explicit" async defer></script>
+      </div>
+    </div>
+  </body>
+</html>
