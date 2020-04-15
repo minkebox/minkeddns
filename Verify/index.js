@@ -11,7 +11,7 @@ const captchaPage = FS.readFileSync(`${__dirname}/Captcha.html`, { encoding: 'ut
 
 exports.handler = async (event, context) => {
 
-  console.log(event, context);
+  //console.log(event, context);
 
   switch (event.path) {
     case '/captcha':
@@ -39,8 +39,6 @@ async function verify(event, context) {
 
   const client = event.queryStringParameters.key;
   const token = event.queryStringParameters.token;
-
-  console.log(client, token);
 
   if (!GUID.test(client)) {
     return {
@@ -76,8 +74,6 @@ async function verify(event, context) {
     req.write(data);
     req.end();
   });
-
-  console.log('validToken', validToken);
 
   if (!validToken) {
     return {

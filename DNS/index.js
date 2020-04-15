@@ -14,7 +14,7 @@ const IPADDR6 = /^(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){
 
 exports.handler = async (event, context) => {
 
-  console.log(event.key, event.host, event.ip, event.ip6);
+  //console.log(event.key, event.host, event.ip, event.ip6);
 
   const client = event.key;
   const host = event.host;
