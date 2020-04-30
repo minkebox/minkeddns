@@ -16,8 +16,8 @@ exports.handler = async (event, context) => {
 
   //console.log(event.key, event.host, event.ip, event.ip6);
 
-  const client = event.key;
-  const host = event.host;
+  const client = event.key.toLowerCase();
+  const host = event.host.toLowerCase();
   const ip = event.ip;
   const ip6 = event.ip6;
   const uip = event.sourceIp;
@@ -53,7 +53,7 @@ exports.handler = async (event, context) => {
     });
   });
 
-  const name = `${host}.minkebox.net.`;
+  const name = `${host.toUpperCase()}.minkebox.net.`;
 
   return new Promise((resolve, reject) => {
     DB.getItem({

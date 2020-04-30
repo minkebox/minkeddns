@@ -37,7 +37,7 @@ async function captcha() {
 
 async function verify(event, context) {
 
-  const client = event.queryStringParameters.key;
+  const client = event.queryStringParameters.key.toLowerCase();
   const token = event.queryStringParameters.token;
 
   if (!GUID.test(client)) {
