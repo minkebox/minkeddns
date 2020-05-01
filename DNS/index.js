@@ -53,7 +53,7 @@ exports.handler = async (event, context) => {
     });
   });
 
-  const name = `${host.toUpperCase()}.minkebox.net.`;
+  const name = `${host}.minkebox.net.`;
 
   return new Promise((resolve, reject) => {
     DB.getItem({
