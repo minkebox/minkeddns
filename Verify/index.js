@@ -25,13 +25,13 @@ exports.handler = async (event, context) => {
   }
 };
 
-async function captcha() {
+async function captcha(event) {
   return {
     statusCode: 200,
     headers: {
       'content-type': 'text/html'
     },
-    body: captchaPage
+    body: event.queryStringParameters.darkmode ? captchaPage.replace('lightmode', 'darkmode') : captchaPage;
   };
 }
 
